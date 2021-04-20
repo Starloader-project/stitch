@@ -86,6 +86,10 @@ public class CommandProposeFieldNames extends Command {
                     }
 
                     if (!tabSplit[1].equals("official")) {
+                        if (mappings == null) {
+                            // This cannot happen and this state is just so my IDE does not complain about potential nullabillity
+                            throw new IllegalStateException("Someone messed with the integrity of the universe");
+                        }
                         for (FieldEntry e : mappings.getFieldEntries()) {
                             EntryTriple officialFieldMapping = e.get("official");
                             String name = fieldNamesO.get(officialFieldMapping);

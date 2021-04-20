@@ -5,12 +5,12 @@ plugins {
 	id "net.minecrell.licenser" version "0.4.1"
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 
 def ENV = System.getenv()
 version = version + (System.getenv("GITHUB_ACTIONS") ? "" : "+local")
 
-group = 'org.quiltmc'
+group = 'de.geolykt.starloader'
 archivesBaseName = project.name.toLowerCase()
 
 repositories {
