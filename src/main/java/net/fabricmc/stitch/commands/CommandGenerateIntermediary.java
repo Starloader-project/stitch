@@ -29,7 +29,8 @@ public class CommandGenerateIntermediary extends Command {
 
     @Override
     public String getHelpString() {
-        return "<input-jar> <mapping-name> [-t|--target-namespace <namespace>] [-p|--obfuscation-pattern <regex pattern>]...";
+        // TODO more in-depth help
+        return "<input-jar> <mapping-name> [-t|--target-namespace <namespace>] [-p|--obfuscation-pattern <regex pattern>] [-i|--include <regex pattern>]...";
     }
 
     @Override
@@ -67,11 +68,16 @@ public class CommandGenerateIntermediary extends Command {
                     state.addObfuscatedPattern(args[i + 1]);
                     i++;
                     break;
+                case "-i":
+                case "--include":
+                    state.addInclude(args[i + 1]);
+                    i++;
+                    break;
             }
         }
 
-        System.err.println("Generating new mappings...");
+        System.out.println("Generating new mappings...");
         state.generate(new File(args[1]), jarEntry, null);
-        System.err.println("Done!");
+        System.out.println("Done!");
     }
 }

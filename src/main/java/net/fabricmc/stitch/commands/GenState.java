@@ -45,7 +45,16 @@ class GenState {
     private Scanner scanner = new Scanner(System.in);
 
     private String targetNamespace = "net/minecraft/";
-    private final List<Pattern> obfuscatedPatterns = new ArrayList<Pattern>();
+    private final List<Pattern> obfuscatedPatterns = new ArrayList<>();
+
+    /**
+     * The regex patterns of classes that should be included in the transformation process.
+     *
+     * Only classes whose fully qualified name matches the regex will get transformed.
+     * If no regexes are registered, then all classes will be included,
+     * if multiple are registered, then only one regex has to match in order for it to get transformed.
+     */
+    private final List<Pattern> includes = new ArrayList<>();
 
     public GenState() {
         this.obfuscatedPatterns.add(Pattern.compile("^[^/]*$")); // Default ofbfuscation. Minecraft classes without a package are obfuscated.
@@ -92,7 +101,7 @@ class GenState {
 
     public void generate(File file, JarRootEntry jarEntry, JarRootEntry jarOld) throws IOException {
         if (file.exists()) {
-            System.err.println("Target file exists - loading...");
+            System.out.println("Target file exists - loading...");
             newToIntermediary = new GenMap();
             try (FileInputStream inputStream = new FileInputStream(file)) {
                 newToIntermediary.load(
@@ -108,6 +117,18 @@ class GenState {
                 writer.write("v1\tofficial\tintermediary\n");
 
                 for (JarClassEntry c : jarEntry.getClasses()) {
+                    if (includes.size() != 0) {
+                        boolean included = false;
+                        for (Pattern pattern : includes) {
+                            if (pattern.matcher(c.getFullyQualifiedName()).find()) {
+                                included = true;
+                                break;
+                            }
+                        }
+                        if (!included) { // no pattern matched, process next class
+                            continue;
+                        }
+                    }
                     addClass(writer, c, jarOld, jarEntry, this.targetNamespace);
                 }
 
@@ -515,5 +536,18 @@ class GenState {
             return Paths.get(System.getProperty("stitch.counter"));
         }
         return null;
+    }
+
+    /**
+     * Adds an include to the generator.
+     * Only classes whose fully qualified name matches the regex will get transformed.
+     * If no regexes are registered, then all classes will be included,
+     * if multiple are registered, then only one regex has to match in order for it to get transformed.
+     *
+     * @param regex The regex string
+     * @throws PatternSyntaxException If the syntax of the regex expression is flawed
+     */
+    public void addInclude(String regex) {
+        includes.add(Pattern.compile(regex));
     }
 }

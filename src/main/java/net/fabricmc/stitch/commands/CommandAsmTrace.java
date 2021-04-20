@@ -19,7 +19,6 @@ package net.fabricmc.stitch.commands;
 import net.fabricmc.stitch.Command;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.FileInputStream;

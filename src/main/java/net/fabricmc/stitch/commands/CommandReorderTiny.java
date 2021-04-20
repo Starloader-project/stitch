@@ -28,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Comparator;
-import java.util.Locale;
 
 public class CommandReorderTiny extends Command {
     public CommandReorderTiny() {
