@@ -38,8 +38,25 @@ import java.util.regex.PatternSyntaxException;
 class GenState {
     private final Map<String, Integer> counters = new HashMap<>();
     private final Map<AbstractJarEntry, Integer> values = new IdentityHashMap<>();
-    private GenMap oldToIntermediary, newToOld;
+
+
+    /**
+     * Generation map that is only used when the intermediary is updated or rewritten via the respective command.
+     * Not used for the generation of completely new intermediaries.
+     */
+    private GenMap oldToIntermediary;
+
+    /**
+     * Generation map that is only used when the intermediary is updated or rewritten.
+     * Not used for the generation of completely new intermediaries.
+     */
+    private GenMap newToOld;
+
+    /**
+     * Only declared when the file already existed, otherwise it will remain null.
+     */
     private GenMap newToIntermediary;
+
     private boolean interactive = true;
     private boolean writeAll = false;
     private Scanner scanner = new Scanner(System.in);
@@ -57,7 +74,8 @@ class GenState {
     private final List<Pattern> includes = new ArrayList<>();
 
     public GenState() {
-        this.obfuscatedPatterns.add(Pattern.compile("^[^/]*$")); // Default ofbfuscation. Minecraft classes without a package are obfuscated.
+        // Default is no package (^ and $ are the beginning and end pointers; "[^/]*" just makes sure that the file is in no sub-folder)
+        this.obfuscatedPatterns.add(Pattern.compile("^[^/]*$")); // Default obfuscation. Minecraft classes without a package are obfuscated.
     }
 
     public void setWriteAll(boolean writeAll) {
@@ -137,6 +155,15 @@ class GenState {
         }
     }
 
+    /**
+     * @deprecated unused
+     * Currently only true if the class is NOT an anonymous class (i. e. it's name just consists of digits)
+     *
+     * @param storage Unused
+     * @param c The class entry to check
+     * @return N/A
+     */
+    @Deprecated(forRemoval = true)
     public static boolean isMappedClass(ClassStorage storage, JarClassEntry c) {
         return !c.isAnonymous();
     }
@@ -375,10 +402,15 @@ class GenState {
         String prefixSaved = translatedPrefix;
 
         if(!this.obfuscatedPatterns.stream().anyMatch(p -> p.matcher(className).matches())) {
+            // Does not match obfuscation pattern
+            // By default it is every non-inner class that is within a package
             translatedPrefix = c.getFullyQualifiedName();
         } else {
-            if (!isMappedClass(storage, c)) {
-                cname = c.getName();
+            // Matched at least one obfuscated pattern
+            // By default it is every inner class or any class that is not within a package
+            if (c.getFullyQualifiedName().contains("$") && !c.isAnonymous()) {
+                // Galimulator's inner classes are obfuscated in a way that if they are obfuscated they do not contain the inner class seperator
+                translatedPrefix = c.getFullyQualifiedName();
             } else {
                 cname = null;
 
