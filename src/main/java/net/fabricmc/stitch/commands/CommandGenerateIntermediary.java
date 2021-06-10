@@ -30,7 +30,7 @@ public class CommandGenerateIntermediary extends Command {
     @Override
     public String getHelpString() {
         // TODO more in-depth help
-        return "<input-jar> <mapping-name> [-t|--target-namespace <namespace>] [-p|--obfuscation-pattern <regex pattern>] [-i|--include <regex pattern>]...";
+        return "<input-jar> <mapping-name> [-t|--target-namespace <namespace>] [-p|--obfuscation-pattern <regex pattern>] [-i|--include <regex pattern>] [--keep-package]...";
     }
 
     @Override
@@ -72,6 +72,9 @@ public class CommandGenerateIntermediary extends Command {
                 case "--include":
                     state.addInclude(args[i + 1]);
                     i++;
+                    break;
+                case "--keep-package":
+                    state.keepPackage();
                     break;
             }
         }

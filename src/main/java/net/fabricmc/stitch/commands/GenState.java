@@ -54,10 +54,18 @@ class GenState {
 
     /**
      * Only declared when the file already existed, otherwise it will remain null.
+     * Not used for the generation of completely new intermediaries.
      */
     private GenMap newToIntermediary;
 
     private boolean interactive = true;
+
+    /**
+     * Whether the package structure should be kept if the class matches one obfuscated pattern.
+     * If false, the targetNamespace is used instead.
+     */
+    private boolean keepPackage = false;
+
     private boolean writeAll = false;
     private Scanner scanner = new Scanner(System.in);
 
@@ -153,19 +161,6 @@ class GenState {
                 writeCounters(writer);
             }
         }
-    }
-
-    /**
-     * @deprecated unused
-     * Currently only true if the class is NOT an anonymous class (i. e. it's name just consists of digits)
-     *
-     * @param storage Unused
-     * @param c The class entry to check
-     * @return N/A
-     */
-    @Deprecated(forRemoval = true)
-    public static boolean isMappedClass(ClassStorage storage, JarClassEntry c) {
-        return !c.isAnonymous();
     }
 
     public static boolean isMappedField(ClassStorage storage, JarClassEntry c, JarFieldEntry f) {
@@ -450,6 +445,12 @@ class GenState {
                 if (cname == null) {
                     cname = next(c, "class");
                 }
+
+                if (keepPackage && translatedPrefix.startsWith(targetNamespace)) {
+                    // The last slash has to be kept
+                    int limiter = c.getFullyQualifiedName().lastIndexOf('/') + 1;
+                    translatedPrefix = c.getFullyQualifiedName().substring(0, limiter);
+                }
             }
         }
 
@@ -581,5 +582,13 @@ class GenState {
      */
     public void addInclude(String regex) {
         includes.add(Pattern.compile(regex));
+    }
+
+    /**
+     * Enables the "keepPackage" flag. Useful if the directory structure is still intact but the class names are not.
+     * This flag basically just turns of renaming the package of classes that match the obf pattern
+     */
+    public void keepPackage() {
+        keepPackage = true;
     }
 }
