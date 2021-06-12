@@ -45,7 +45,7 @@ dependencies {
 	ship "org.ow2.asm:asm-tree:$asmVersion"
 	ship "org.ow2.asm:asm-util:$asmVersion"
 	ship "org.quiltmc:tiny-mappings-parser:0.3.0"
-	implementation "com.google.guava:guava:28.0-jre"
+	ship "com.google.guava:guava:28.0-jre"
 	compileOnly "org.jetbrains:annotations:20.1.0"
 	enigma "cuchaz:enigma:0.23.2"
 
@@ -117,6 +117,7 @@ publishing {
 				}
 			}
 		}
+		mavenLocal()
 	}
 }
 

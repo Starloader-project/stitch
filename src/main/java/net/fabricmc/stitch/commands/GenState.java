@@ -66,6 +66,8 @@ class GenState {
      */
     private boolean keepPackage = false;
 
+    private boolean mapFields = true;
+    private boolean mapMethods = true;
     private boolean writeAll = false;
     private Scanner scanner = new Scanner(System.in);
 
@@ -456,33 +458,37 @@ class GenState {
 
         writer.write("CLASS\t" + c.getFullyQualifiedName() + "\t" + translatedPrefix + cname + "\n");
 
-        for (JarFieldEntry f : c.getFields()) {
-            String fName = getFieldName(storage, c, f);
-            if (fName == null) {
-                fName = f.getName();
-            }
+        if (mapFields) {
+            for (JarFieldEntry f : c.getFields()) {
+                String fName = getFieldName(storage, c, f);
+                if (fName == null) {
+                    fName = f.getName();
+                }
 
-            if (fName != null) {
-                writer.write("FIELD\t" + c.getFullyQualifiedName()
-                        + "\t" + f.getDescriptor()
-                        + "\t" + f.getName()
-                        + "\t" + fName + "\n");
+                if (fName != null) {
+                    writer.write("FIELD\t" + c.getFullyQualifiedName()
+                            + "\t" + f.getDescriptor()
+                            + "\t" + f.getName()
+                            + "\t" + fName + "\n");
+                }
             }
         }
 
-        for (JarMethodEntry m : c.getMethods()) {
-            String mName = getMethodName(storageOld, storage, c, m);
-            if (mName == null) {
-                if (!m.getName().startsWith("<") && m.isSource(storage, c)) {
-                   mName = m.getName();
+        if (mapMethods) {
+            for (JarMethodEntry m : c.getMethods()) {
+                String mName = getMethodName(storageOld, storage, c, m);
+                if (mName == null) {
+                    if (!m.getName().startsWith("<") && m.isSource(storage, c)) {
+                       mName = m.getName();
+                    }
                 }
-            }
 
-            if (mName != null) {
-                writer.write("METHOD\t" + c.getFullyQualifiedName()
-                        + "\t" + m.getDescriptor()
-                        + "\t" + m.getName()
-                        + "\t" + mName + "\n");
+                if (mName != null) {
+                    writer.write("METHOD\t" + c.getFullyQualifiedName()
+                            + "\t" + m.getDescriptor()
+                            + "\t" + m.getName()
+                            + "\t" + mName + "\n");
+                }
             }
         }
 
@@ -590,5 +596,13 @@ class GenState {
      */
     public void keepPackage() {
         keepPackage = true;
+    }
+
+    public void mapMethods(boolean b) {
+        mapMethods = b;
+    }
+
+    public void mapFields(boolean b) {
+        mapFields = b;
     }
 }
